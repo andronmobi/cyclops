@@ -23,4 +23,9 @@
 
     <style name="ButtonBarButton" />
 
+    <style name="Camera_NoTitle_Fullscreen_DayNight">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
 </resources>

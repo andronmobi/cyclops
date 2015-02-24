@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fullscreen_content_controls"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingBottom="5dp"
+    android:layout_gravity="bottom|center_vertical"
+    android:orientation="horizontal"
+    android:background="@android:color/transparent">
+
+    <ImageButton
+        android:id="@+id/button_go_to_gallery"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@drawable/btn_default_transparent"
+        android:src="@drawable/gallery_i"
+        android:visibility="visible"/>
+
+    <ImageButton
+        android:id="@+id/button_take_photo"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@drawable/btn_default_transparent"
+        android:src="@drawable/photo_i"
+        android:visibility="visible"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right">
+
+        <ImageButton
+            android:id="@+id/button_switch_to_tv"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/btn_default_transparent"
+            android:src="@drawable/tv_i"
+            android:visibility="visible"/>
+
+    </LinearLayout>
+
+</LinearLayout>
