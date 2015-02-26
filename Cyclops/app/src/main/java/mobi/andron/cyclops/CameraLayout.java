@@ -153,6 +153,8 @@ public class CameraLayout extends RelativeLayout implements OnCameraStateListene
         mCameraView.stop(force);
     }
 
+    public void takePicture() { mCameraView.takePicture(); }
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         logdebug("onTouchEvent");

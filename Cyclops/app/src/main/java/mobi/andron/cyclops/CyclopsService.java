@@ -34,7 +34,7 @@ public class CyclopsService extends Service {
         mCamCtrlMap = new HashMap<Integer, CameraCtrl>();
         mCamCtrlArr = new CameraCtrl[Cyclops.MAX_CAMERAS];
         for (int i = 0; i < Cyclops.MAX_CAMERAS; i++) {
-            mCamCtrlArr[i] = new CameraCtrl(Cyclops.REAR_CAMERA_ID);
+            mCamCtrlArr[i] = new CameraCtrl(this, Cyclops.REAR_CAMERA_ID);
         }
     }
 
@@ -52,8 +52,8 @@ public class CyclopsService extends Service {
 
     CameraCtrl obtainCameraCntrl(int id) {
         CameraCtrl controller = mCamCtrlMap.get(id);
-        if (controller == null) {;
-            controller = new CameraCtrl(id);
+        if (controller == null) {
+            controller = new CameraCtrl(this, id);
             mCamCtrlMap.put(id, controller);
         }
         return controller;

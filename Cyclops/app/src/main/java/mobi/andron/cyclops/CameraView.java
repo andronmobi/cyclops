@@ -256,6 +256,12 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
         }
     }
 
+    public void takePicture() {
+        if (mCameraCtrl != null) {
+            mCameraCtrl.takePicture();
+        }
+    }
+
     private void logdebug(String msg) {
         if (DEBUG) Log.d(TAG, "camId=" + mCameraId + ", " + msg);
     }

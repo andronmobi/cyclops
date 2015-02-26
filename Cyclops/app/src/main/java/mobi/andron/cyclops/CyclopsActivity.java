@@ -13,12 +13,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 
-public class CyclopsActivity extends Activity {
+public class CyclopsActivity extends Activity implements CameraPanel.Listener {
 
     private static final boolean AUTO_HIDE = true;
     private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
@@ -30,6 +33,8 @@ public class CyclopsActivity extends Activity {
 
     private SystemUiHider mSystemUiHider;
     private CameraLayout mCameraLayout;
+    private View mControlsView;
+    private CameraPanel mCameraPanel;
 
     private static final String EXTRA_REARGEAR = "com.parrot.reargear.status";
     private static final String ACTION_REARGEAR = "com.parrot.reargear";
@@ -54,6 +59,7 @@ public class CyclopsActivity extends Activity {
 
         setContentView(R.layout.activity_cyclops);
         initSystemUiHider();
+        mCameraPanel = new CameraPanel((ViewGroup) mControlsView);
 
         // Start CyclopsService which handles camera commands from the activity
         startService(new Intent(this, CyclopsService.class));
@@ -77,6 +83,7 @@ public class CyclopsActivity extends Activity {
 //        });
 //        mCameraLayout.setOnDobleClickListener(this);
         mContentView.addView(mCameraLayout);
+        mCameraPanel.setListener(CyclopsActivity.this, mCameraLayout);
 
         // TODO delete
         // Upon interacting with UI controls, delay any scheduled hide()
@@ -182,10 +189,46 @@ public class CyclopsActivity extends Activity {
         //stopService(new Intent(this, CyclopsService.class));
     }
 
+    private boolean isTvDisplayBusy(CameraLayout camLayout) {
+        if (SystemProperties.isOverlay0OnTV() || mCameraLayout.getCameraDisplay() == Cyclops.DISPLAY_TYPE_HDMI_TV)
+            return true;
+        return false;
+    }
+
+    // ******************* CameraPanel.Listener implementation ****************
+
+    @Override
+    public void onSwitchDisplay(CameraLayout camLayout) {
+        int display = camLayout.getCameraDisplay();
+        switch (display) {
+            case Cyclops.DISPLAY_TYPE_LCD_PRIMARY:
+                if (isTvDisplayBusy(camLayout)) {
+                    Toast toast = Toast.makeText(this, R.string.toast_tv_busy, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                } else {
+                    camLayout.setCameraDisplay(Cyclops.DISPLAY_TYPE_HDMI_TV);
+                }
+                break;
+            case Cyclops.DISPLAY_TYPE_HDMI_TV:
+                camLayout.setCameraDisplay(Cyclops.DISPLAY_TYPE_LCD_PRIMARY);
+                break;
+            case Cyclops.DISPLAY_TYPE_UNDEFINED:
+                Log.e(TAG, "Camera display is undefined");
+                break;
+        }
+    }
+
+    @Override
+    public void onTakePicture(CameraLayout camLayout) {
+        Log.d(TAG, "onTakePicture");
+        camLayout.takePicture();
+    }
+
     // ******************* SystemUiHider implementation ***********************
 
     private void initSystemUiHider() {
-        final View controlsView = findViewById(R.id.fullscreen_content_controls);
+        mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = (RelativeLayout) findViewById(R.id.fullscreen_content);
 
         // Set up an instance of SystemUiHider to control the system UI for
@@ -207,20 +250,20 @@ public class CyclopsActivity extends Activity {
                             // in-layout UI controls at the bottom of the
                             // screen.
                             if (mControlsHeight == 0) {
-                                mControlsHeight = controlsView.getHeight();
+                                mControlsHeight = mControlsView.getHeight();
                             }
                             if (mShortAnimTime == 0) {
                                 mShortAnimTime = getResources().getInteger(
                                         android.R.integer.config_shortAnimTime);
                             }
-                            controlsView.animate()
+                            mControlsView.animate()
                                     .translationY(visible ? 0 : mControlsHeight)
                                     .setDuration(mShortAnimTime);
                         } else {
                             // If the ViewPropertyAnimator APIs aren't
                             // available, simply show or hide the in-layout UI
                             // controls.
-                            controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
+                            mControlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
                         }
 
                         if (visible && AUTO_HIDE) {

@@ -16,7 +16,7 @@ public interface Cyclops {
     //public static final int DISPLAY_TYPE_LCD_SECONDARY = 0x0001;
     public static final int DISPLAY_TYPE_HDMI_TV       = 0x0002;
 
-    public static final int MAX_CAMERAS = 2;
+    public static final int MAX_CAMERAS = 1;
 
     public static final String CAMERA_ID = "camera_id";
     public static final int REAR_CAMERA_ID = 0;

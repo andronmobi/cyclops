@@ -20,4 +20,8 @@
     <string name="notif_title">Camera is on external display</string>
     <string name="notif_text">Select to control camera preview</string>
 
+    <string name="image_taken">Camera snapshot is taken</string>
+    <string name="image_not_taken">Can\'t store a camera snapshot.\nMake sure the SD card is inserted.</string>
+    <string name="image_file_name_format" translatable="false">"'IMG'_yyyyMMdd_HHmmss"</string>
+
 </resources>
