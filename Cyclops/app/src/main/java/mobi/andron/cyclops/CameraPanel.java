@@ -10,6 +10,7 @@ public class CameraPanel {
     public interface Listener {
         public void onSwitchDisplay(CameraLayout camLayout);
         public void onTakePicture(CameraLayout camLayout);
+        public void onOpenImageFolder(CameraLayout camLayout);
     }
 
     private static final String TAG = "CameraPanel";
@@ -36,6 +37,16 @@ public class CameraPanel {
                         if (DEBUG) Log.d(TAG, "onTakePicture");
                         if (mListener != null) {
                             mListener.onTakePicture(mCameraLayout);
+                        }
+                    }
+                });
+        layoutControl.findViewById(R.id.button_go_to_gallery)
+                .setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (DEBUG) Log.d(TAG, "onOpenImageFolder");
+                        if (mListener != null) {
+                            mListener.onOpenImageFolder(mCameraLayout);
                         }
                     }
                 });

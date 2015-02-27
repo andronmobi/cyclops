@@ -1,5 +1,7 @@
 package mobi.andron.cyclops;
 
+import android.os.Environment;
+
 public interface Cyclops {
 
     public interface PreviewOrientation {
@@ -22,4 +24,5 @@ public interface Cyclops {
     public static final int REAR_CAMERA_ID = 0;
     public static final int USB_CAMERA_ID = 2;
 
+    public static final String CYCLOPS_DIR = Environment.getExternalStorageDirectory().toString() + "/DCIM/Cyclops";
 }

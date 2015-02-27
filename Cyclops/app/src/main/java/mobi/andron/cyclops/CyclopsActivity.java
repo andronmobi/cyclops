@@ -6,9 +6,11 @@ import mobi.andron.cyclops.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -223,6 +225,22 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
     public void onTakePicture(CameraLayout camLayout) {
         Log.d(TAG, "onTakePicture");
         camLayout.takePicture();
+    }
+
+    @Override
+    public void onOpenImageFolder(CameraLayout camLayout) {
+        Log.d(TAG, "onOpenImageFolder");
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName("com.cooliris.media", "com.cooliris.media.Gallery"));
+        Uri uri = camLayout.getLastUriOfTakenPicture();
+        if (uri != null) {
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setData(uri);
+        } else {
+            uri = Uri.parse(Cyclops.CYCLOPS_DIR);
+            intent.setDataAndType(uri , "image/*");
+        }
+        startActivity(intent);
     }
 
     // ******************* SystemUiHider implementation ***********************

@@ -10,6 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.AttributeSet;
@@ -260,6 +261,10 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
         if (mCameraCtrl != null) {
             mCameraCtrl.takePicture();
         }
+    }
+
+    public Uri getLastUriOfTakenPicture() {
+        return (mCameraCtrl != null) ? mCameraCtrl.getLastUriOfTakenPicture() : null;
     }
 
     private void logdebug(String msg) {

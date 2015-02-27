@@ -3,11 +3,11 @@ package mobi.andron.cyclops;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.util.Log;
@@ -44,12 +44,12 @@ public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallbac
     private static final boolean DEBUG = true;
 
     private static final Uri STORAGE_URI = Images.Media.EXTERNAL_CONTENT_URI;
-    public static final String CYCLOPS_DIR = "/DCIM/Cyclops";
     private static OmapMMLibrary mOmapMMHandle;
 
     private Context mContext;
     private Camera mCamera;
     private int mCameraId;
+    private Uri mLastUriOfTakenPicture;
     private Camera.Size mCameraSize;
     private int mCameraDisplayId;
     private int mCameraState;
@@ -67,6 +67,7 @@ public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallbac
     public CameraCtrl(Context context, int cameraId) {
         mContext = context;
         mCameraId = cameraId;
+        mLastUriOfTakenPicture = null;
         mCameraDisplayId = -1;
         mCameraState = CameraState.IDLE;
         mCameraMirroring = false;
@@ -225,6 +226,10 @@ public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallbac
         }
     }
 
+    public Uri getLastUriOfTakenPicture() {
+        return mLastUriOfTakenPicture;
+    }
+
     @Override
     public void onPictureTaken(byte[] data, Camera camera) {
         long dateTaken = System.currentTimeMillis();
@@ -232,11 +237,13 @@ public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallbac
         SimpleDateFormat dateFormat = new SimpleDateFormat(mContext.getString(R.string.image_file_name_format));
         String title = dateFormat.format(date);
         String filename = title + ".jpg";
-        String dirName = Environment.getExternalStorageDirectory().toString() + CYCLOPS_DIR;
-        Uri uri = addImage(mContext.getContentResolver(), title, dateTaken, null, dirName, filename, null, data);
+        String dirName = Cyclops.CYCLOPS_DIR;
+        mLastUriOfTakenPicture = addImage(mContext.getContentResolver(), title, dateTaken, null, dirName, filename, null, data);
         String msg;
-        if (uri != null) {
+        if (mLastUriOfTakenPicture != null) {
+            if(DEBUG)Log.d(TAG, "onPictureTaken: " + mLastUriOfTakenPicture);
             msg = mContext.getString(R.string.image_taken);
+            mContext.sendBroadcast(new Intent("com.android.camera.NEW_PICTURE", mLastUriOfTakenPicture));
         } else {
             msg = mContext.getString(R.string.image_not_taken);
         }

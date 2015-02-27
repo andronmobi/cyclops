@@ -4,6 +4,7 @@ import mobi.andron.cyclops.CameraView.OnCameraStateListener;
 import mobi.andron.cyclops.Cyclops.PreviewOrientation;
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -154,6 +155,8 @@ public class CameraLayout extends RelativeLayout implements OnCameraStateListene
     }
 
     public void takePicture() { mCameraView.takePicture(); }
+
+    public Uri getLastUriOfTakenPicture() { return mCameraView.getLastUriOfTakenPicture(); }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
