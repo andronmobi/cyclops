@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:title="Camera orientation"
+        android:key="orientation_category">
+
+        <ListPreference
+            android:key="camera_type"
+            android:title="Camera type"
+            android:summary="Choose a type of camera to use"
+            android:entries="@array/camera_types"
+            android:entryValues="@array/camera_ids"
+            android:defaultValue="0"/>
+
+        <CheckBoxPreference
+            android:key="mirror_camera"
+            android:title="Mirror camera"
+            android:summary="Enable or disable camera mirroring"
+            android:defaultValue="false"/>
+
+        <CheckBoxPreference
+            android:key="rotate180_camera"
+            android:title="Rotate camera by 180°"
+            android:summary="Enable or disable camera rotation by 180°"
+            android:defaultValue="false"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

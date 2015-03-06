@@ -10,12 +10,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +41,12 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
     private CameraLayout mCameraLayout;
     private View mControlsView;
     private CameraPanel mCameraPanel;
+    private int mCurrentCameraId = -1;
 
     private static final String EXTRA_REARGEAR = "com.parrot.reargear.status";
     private static final String ACTION_REARGEAR = "com.parrot.reargear";
+
+    private static final int REQUEST_SETTINGS_CODE = 1;
 
     private boolean mLaunchedByGearStick;
     private boolean mIsStarted = false;
@@ -65,33 +72,43 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
 
         // Start CyclopsService which handles camera commands from the activity
         startService(new Intent(this, CyclopsService.class));
+    }
 
-        int camId = 0;
+    void updateCameraSettings() {
+        // Check shared prefs to obtain default settings for camera
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mCurrentCameraId = Integer.parseInt(sharedPrefs.getString("camera_type",
+                Integer.toString(Cyclops.REAR_CAMERA_ID)));
+    }
+
+    void createCameraLayout() {
         mCameraLayout = new CameraLayout(CyclopsActivity.this);
-        mCameraLayout.setTag(camId);
-        mCameraLayout.setCameraId((camId == 0) ? Cyclops.REAR_CAMERA_ID : Cyclops.USB_CAMERA_ID);
+        mCameraLayout.setTag(mCurrentCameraId);
+        mCameraLayout.setCameraId(mCurrentCameraId);
         //mCameraLayout.setPreviewOrientation((camId == 0) ? PreviewOrientation.BOTTOM : PreviewOrientation.TOP);
         mCameraLayout.setFullScreen(true);
-//        mCameraLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                CameraLayout camLayout = (CameraLayout) v;
-//                if (!mFullScreen) {
-//                    mCameraPanel.setListener(CyclopsActivity.this, camLayout);
-//                    mFullScreen = true;
-//                    setFullScreen(camLayout);
-//                }
-//            }
-//        });
-//        mCameraLayout.setOnDobleClickListener(this);
+        /*mCameraLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CameraLayout camLayout = (CameraLayout) v;
+                if (!mFullScreen) {
+                    mCameraPanel.setListener(CyclopsActivity.this, camLayout);
+                    mFullScreen = true;
+                    setFullScreen(camLayout);
+                }
+            }
+        });
+        mCameraLayout.setOnDobleClickListener(this);*/
         mContentView.addView(mCameraLayout);
         mCameraPanel.setListener(CyclopsActivity.this, mCameraLayout);
+    }
 
-        // TODO delete
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-//        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+    void removeCameraLayout() {
+        if (mCameraLayout != null) {
+            mContentView.removeView(mCameraLayout);
+            mCameraLayout.stop(true);
+            mCameraLayout = null;
+        }
     }
 
     /**
@@ -152,13 +169,23 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
         super.onStart();
         if (DEBUG) Log.d(TAG, "onStart");
         mIsStarted = true;
+        boolean camOnTv = false;
         if (SystemProperties.isTvBusyByCyclops()) {
             SystemProperties.setTvBusyByOtherApp(false);
+            camOnTv = true;
         } else {
             boolean busy = SystemProperties.isOverlay0OnTV();
             SystemProperties.setTvBusyByOtherApp(busy);
         }
         registerReceiver(mReceiver, mFilter);
+        int camId = mCurrentCameraId;
+        updateCameraSettings();
+        // Check that type of camera used by default is changed and
+        // it's not currently on TV (don't use two overlays with two cameras)
+        if (camId != mCurrentCameraId && !camOnTv) {
+            removeCameraLayout();
+            createCameraLayout();
+        }
         mCameraLayout.start();
     }
 
@@ -172,6 +199,24 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
     protected void onPause() {
         super.onPause();
         if(DEBUG)Log.d(TAG, "onPause");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                Intent i = new Intent(this, SettingsActivity.class);
+                i.putExtra(Cyclops.CAMERA_ID, mCurrentCameraId);
+                startActivityForResult(i, REQUEST_SETTINGS_CODE);
+                break;
+        }
+        return true;
     }
 
     @Override

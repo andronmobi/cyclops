@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <!--<activity android:name=".SettingsActivity"/>-->
+        <activity android:name=".SettingsActivity"/>
         <service android:name=".CyclopsService"/>
 
     </application>
