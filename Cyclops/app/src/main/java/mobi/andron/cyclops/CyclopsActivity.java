@@ -105,8 +105,8 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
 
     void removeCameraLayout() {
         if (mCameraLayout != null) {
-            mContentView.removeView(mCameraLayout);
             mCameraLayout.stop(true);
+            mContentView.removeView(mCameraLayout);
             mCameraLayout = null;
         }
     }
@@ -182,9 +182,16 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
         updateCameraSettings();
         // Check that type of camera used by default is changed and
         // it's not currently on TV (don't use two overlays with two cameras)
-        if (camId != mCurrentCameraId && !camOnTv) {
-            removeCameraLayout();
-            createCameraLayout();
+        if (camId != mCurrentCameraId) {
+            if (camOnTv) {
+                Toast toast = Toast.makeText(this, R.string.toast_apply_display, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+                mCurrentCameraId = camId;
+            } else {
+                removeCameraLayout();
+                createCameraLayout();
+            }
         }
         mCameraLayout.start();
     }

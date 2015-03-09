@@ -14,6 +14,7 @@
     <string name="toast_tv_busy">There is already video on external display</string>
     <string name="toast_apply_orient_setting">To apply orientation settings you have to switch camera preview
         on primary display and restart the application</string>
+    <string name="toast_apply_display">To change a camera you have to restart the application</string>
 
     <string name="menu_settings">Settings</string>
 
