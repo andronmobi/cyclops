@@ -162,6 +162,9 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
                 if (opened) {
                     int displayId = getCameraDisplay();
                     mExtDisplay = (displayId == Cyclops.DISPLAY_TYPE_HDMI_TV) ? true : false;
+                    // Set a title for SurfaceView if the camera was started on TV
+                    // from the beginning and don't have updated value
+                    setVoutVideoView(mExtDisplay);
                     if (mCameraStateListener != null) {
                         mCameraStateListener.onUpdateDisplay(displayId);
                     }
@@ -235,7 +238,9 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
             // If a window of SurfaceView has a title VoutVideoView
             // than the surface wont be destroyed by WindowManagerService
             // while video is playing on external screen in background mode.
-            mSetTitleMethod.invoke(this, vout ? "VoutVideoView" : "VideoView");
+            String title = vout ? "VoutVideoView" : "VideoView";
+            logdebug("set title to SurfaceView: " + title);
+            mSetTitleMethod.invoke(this, title);
         } catch (IllegalAccessException e) {
             Log.e(TAG, e.toString());
         } catch (InvocationTargetException e) {
