@@ -42,6 +42,8 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
     private View mControlsView;
     private CameraPanel mCameraPanel;
     private int mCurrentCameraId = -1;
+    private boolean mIsCameraMirrored = false;
+    private boolean mIsCameraRotatedBy180 = false;
 
     private static final String EXTRA_REARGEAR = "com.parrot.reargear.status";
     private static final String ACTION_REARGEAR = "com.parrot.reargear";
@@ -74,17 +76,21 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
         startService(new Intent(this, CyclopsService.class));
     }
 
-    void updateCameraSettings() {
+    void checkSharedPrefs() {
         // Check shared prefs to obtain default settings for camera
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mCurrentCameraId = Integer.parseInt(sharedPrefs.getString("camera_type",
                 Integer.toString(Cyclops.REAR_CAMERA_ID)));
+        mIsCameraMirrored = sharedPrefs.getBoolean("mirror_camera", false);
+        mIsCameraRotatedBy180 = sharedPrefs.getBoolean("rotate180_camera", false);
     }
 
     void createCameraLayout() {
         mCameraLayout = new CameraLayout(CyclopsActivity.this);
         mCameraLayout.setTag(mCurrentCameraId);
         mCameraLayout.setCameraId(mCurrentCameraId);
+        mCameraLayout.setCameraMirroring(mIsCameraMirrored);
+        mCameraLayout.setCameraRotationBy180(mIsCameraRotatedBy180);
         //mCameraLayout.setPreviewOrientation((camId == 0) ? PreviewOrientation.BOTTOM : PreviewOrientation.TOP);
         mCameraLayout.setFullScreen(true);
         /*mCameraLayout.setOnClickListener(new View.OnClickListener() {
@@ -179,20 +185,22 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
         }
         registerReceiver(mReceiver, mFilter);
         int camId = mCurrentCameraId;
-        updateCameraSettings();
-        // Check that type of camera used by default is changed and
-        // it's not currently on TV (don't use two overlays with two cameras)
+        checkSharedPrefs();
         if (camId != mCurrentCameraId) {
             if (camOnTv) {
+                // Don't use two overlays with two cameras (it's more difficult to handle properly)
                 Toast toast = Toast.makeText(this, R.string.toast_apply_display, Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
                 mCurrentCameraId = camId;
             } else {
-                removeCameraLayout();
+                removeCameraLayout(); // remove the previous cam layout in case if changed a camera
                 createCameraLayout();
             }
         }
+        // Update mirroring and rotation if they had been changed in SettingsActivity
+        mCameraLayout.setCameraMirroring(mIsCameraMirrored);
+        mCameraLayout.setCameraRotationBy180(mIsCameraRotatedBy180);
         mCameraLayout.start();
     }
 

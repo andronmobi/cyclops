@@ -23,8 +23,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+
+import mobi.andron.cyclops.Cyclops.CameraTransformation;
 
 @SuppressWarnings("deprecation")
 public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallback {
@@ -55,9 +60,10 @@ public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallbac
     private int mCameraState;
     private boolean mIsSnapshotInProg;
     private SurfaceHolder mCameraSurfaceHolder;
-    private boolean mCameraMirroring;
-    private boolean mCameraRotation180;
+    private boolean mIsCameraMirrored;
+    private boolean mIsCameraRotatedBy180;
     private SyncCallback mSyncCallback;
+    private Method mSetDisplayTransformationMethod;
 
     static {
         mOmapMMHandle = new OmapMMLibrary();
@@ -70,34 +76,29 @@ public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallbac
         mLastUriOfTakenPicture = null;
         mCameraDisplayId = -1;
         mCameraState = CameraState.IDLE;
-        mCameraMirroring = false;
-        mCameraRotation180 = false;
+        mIsCameraMirrored = false;
+        mIsCameraRotatedBy180 = false;
         mIsSnapshotInProg = false;
     }
 
     public boolean openCamera(SurfaceHolder holder, boolean mirroring, boolean rotation180) {
         mCameraSurfaceHolder = holder;
-        mCameraMirroring = mirroring;
-        mCameraRotation180 = rotation180;
+        mIsCameraMirrored = mirroring;
+        mIsCameraRotatedBy180 = rotation180;
         try {
             if(DEBUG)Log.d(TAG, "Openinig camera");
             // Open camera
             mCamera = Camera.open(mCameraId);
+            // Use reflection to call a hidden method of Camera added by Parrot.
+            try {
+                mSetDisplayTransformationMethod = mCamera.getClass().getDeclaredMethod("setDisplayTransformation", int.class);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
             //mCamera.setSyncCallback(this); TODO
             Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
             Camera.getCameraInfo(mCameraId, cameraInfo);
-            /* TODO replace by setDisplayOrientation
-            int transform = 0;
-            if (mirroring) {
-                transform = CameraTransformation.CAMERA_TRANSFORM_FLIP_V;
-            }
-            if (rotation180) {
-                transform = CameraTransformation.CAMERA_TRANSFORM_ROT_180;
-            }
-            if (mirroring && rotation180) {
-                transform = CameraTransformation.CAMERA_TRANSFORM_FLIP_H;
-            }
-            mCamera.setDisplayTransformation(transform);*/
+            setTransformation(mirroring, rotation180);
 
             /* Initialize preview callback
             Parameters params = mCamera.getParameters();
@@ -150,6 +151,40 @@ public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallbac
             }
         }
         return (mCameraDisplayId == Cyclops.DISPLAY_TYPE_HDMI_TV);
+    }
+
+    public boolean isCameraMirrored() { return mIsCameraMirrored; }
+
+    public boolean isCameraRotatedBy180() { return mIsCameraRotatedBy180; }
+
+    public void setCameraTransformation(boolean mirroring, boolean rotation180) {
+        if (mCamera != null && mSetDisplayTransformationMethod != null) {
+            mCamera.stopPreview();
+            setTransformation(mirroring, rotation180);
+            mCamera.startPreview();
+            mIsCameraMirrored = mirroring;
+            mIsCameraRotatedBy180 = rotation180;
+        }
+    }
+
+    private void setTransformation(boolean mirroring, boolean rotation180) {
+        int transform = 0;
+        if (mirroring) {
+            transform = CameraTransformation.CAMERA_TRANSFORM_FLIP_V;
+        }
+        if (rotation180) {
+            transform = CameraTransformation.CAMERA_TRANSFORM_ROT_180;
+        }
+        if (mirroring && rotation180) {
+            transform = CameraTransformation.CAMERA_TRANSFORM_FLIP_H;
+        }
+        try {
+            mSetDisplayTransformationMethod.invoke(mCamera, transform);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setSyncCallback(SyncCallback cb) {

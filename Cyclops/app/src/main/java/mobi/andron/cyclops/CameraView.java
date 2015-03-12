@@ -44,6 +44,9 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
     private Method mSetTitleMethod = null;
     private boolean mExtDisplay = false;
 
+    private boolean mIsCameraMirrored = false;
+    private boolean mIsCameraRotatedBy180 = false;
+
     public CameraView(Context context) {
         super(context);
         initCameraView(context);
@@ -126,6 +129,9 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
         }
     }
 
+    public void setCameraMirroring(boolean mirrored) { mIsCameraMirrored = mirrored; }
+    public void setCameraRotationBy180(boolean rotatedBy180) { mIsCameraRotatedBy180 = rotatedBy180; }
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         logdebug("onTouchEvent");
@@ -155,7 +161,7 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
             if (mCameraCtrl.isCameraOpened()) {
                 logdebug("Camera is already opened, resume from background");
             } else {
-                boolean opened = mCameraCtrl.openCamera(holder, false, false);
+                boolean opened = mCameraCtrl.openCamera(holder, mIsCameraMirrored, mIsCameraRotatedBy180);
                 if (mCameraStateListener != null) {
                     mCameraStateListener.onOpen(opened);
                 }
@@ -204,6 +210,11 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
                 if (mCameraCtrl.isCameraOpened()) {
                     logdebug("stopForeground");
                     mCyclopsService.stopForeground(true);
+                    // Update mirroring and rotation for camera which is on TV
+                    if (mIsCameraMirrored == mCameraCtrl.isCameraMirrored() ||
+                        mIsCameraRotatedBy180 == mCameraCtrl.isCameraRotatedBy180()) {
+                        mCameraCtrl.setCameraTransformation(mIsCameraMirrored, mIsCameraRotatedBy180);
+                    }
                 }
             }
         }

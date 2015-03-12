@@ -154,6 +154,9 @@ public class CameraLayout extends RelativeLayout implements OnCameraStateListene
         mCameraView.stop(force);
     }
 
+    public void setCameraMirroring(boolean mirrored) { mCameraView.setCameraMirroring(mirrored);}
+    public void setCameraRotationBy180(boolean rotatedBy180) { mCameraView.setCameraRotationBy180(rotatedBy180); }
+
     public void takePicture() { mCameraView.takePicture(); }
 
     public Uri getLastUriOfTakenPicture() { return mCameraView.getLastUriOfTakenPicture(); }
