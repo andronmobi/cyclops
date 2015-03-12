@@ -1,4 +1,6 @@
-package mobi.andron.cyclops;
+package com.parrot.cyclops;
+
+import com.parrot.cyclops.R;
 
 import android.util.Log;
 import android.view.View;

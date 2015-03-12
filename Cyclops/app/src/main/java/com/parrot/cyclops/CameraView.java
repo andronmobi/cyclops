@@ -1,9 +1,8 @@
-package mobi.andron.cyclops;
+package com.parrot.cyclops;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import mobi.andron.cyclops.CyclopsService.CyclopsBinder;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -203,7 +202,7 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             logdebug("onServiceConnected");
-            CyclopsBinder binder = (CyclopsBinder) service;
+            CyclopsService.CyclopsBinder binder = (CyclopsService.CyclopsBinder) service;
             mCyclopsService = binder.getService();
             mBound = true;
             if (mCameraCtrl != null) {

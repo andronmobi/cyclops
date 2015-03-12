@@ -1,9 +1,8 @@
-package mobi.andron.cyclops;
+package com.parrot.cyclops;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.util.Log;
-
 
 public class SettingsActivity extends PreferenceActivity {
 

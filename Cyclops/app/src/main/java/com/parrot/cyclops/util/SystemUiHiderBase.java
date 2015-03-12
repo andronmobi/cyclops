@@ -1,4 +1,4 @@
-package mobi.andron.cyclops.util;
+package com.parrot.cyclops.util;
 
 import android.app.Activity;
 import android.view.View;

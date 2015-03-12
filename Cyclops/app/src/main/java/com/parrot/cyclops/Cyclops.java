@@ -1,4 +1,4 @@
-package mobi.andron.cyclops;
+package com.parrot.cyclops;
 
 import android.os.Environment;
 

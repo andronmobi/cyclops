@@ -1,4 +1,4 @@
-package mobi.andron.cyclops;
+package com.parrot.cyclops;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -26,10 +26,9 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
-import mobi.andron.cyclops.Cyclops.CameraTransformation;
+import com.parrot.cyclops.R;
 
 @SuppressWarnings("deprecation")
 public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallback {
@@ -170,13 +169,13 @@ public class CameraCtrl implements Camera.PreviewCallback, Camera.PictureCallbac
     private void setTransformation(boolean mirroring, boolean rotation180) {
         int transform = 0;
         if (mirroring) {
-            transform = CameraTransformation.CAMERA_TRANSFORM_FLIP_V;
+            transform = Cyclops.CameraTransformation.CAMERA_TRANSFORM_FLIP_V;
         }
         if (rotation180) {
-            transform = CameraTransformation.CAMERA_TRANSFORM_ROT_180;
+            transform = Cyclops.CameraTransformation.CAMERA_TRANSFORM_ROT_180;
         }
         if (mirroring && rotation180) {
-            transform = CameraTransformation.CAMERA_TRANSFORM_FLIP_H;
+            transform = Cyclops.CameraTransformation.CAMERA_TRANSFORM_FLIP_H;
         }
         try {
             mSetDisplayTransformationMethod.invoke(mCamera, transform);

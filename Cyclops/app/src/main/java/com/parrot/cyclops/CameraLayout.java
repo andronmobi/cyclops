@@ -1,7 +1,7 @@
-package mobi.andron.cyclops;
+package com.parrot.cyclops;
 
-import mobi.andron.cyclops.CameraView.OnCameraStateListener;
-import mobi.andron.cyclops.Cyclops.PreviewOrientation;
+import com.parrot.cyclops.R;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
@@ -15,7 +15,7 @@ import android.view.ViewParent;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class CameraLayout extends RelativeLayout implements OnCameraStateListener {
+public class CameraLayout extends RelativeLayout implements CameraView.OnCameraStateListener {
 
     public interface OnDoubleClickListener {
         public void onExitFullScreen(CameraLayout camLayout);
@@ -31,7 +31,7 @@ public class CameraLayout extends RelativeLayout implements OnCameraStateListene
     private TextView mTextInfo = null;
 
     private OnDoubleClickListener mDoubleClickListener = null;
-    private int mPreviewOrientation = PreviewOrientation.TOP;
+    private int mPreviewOrientation = Cyclops.PreviewOrientation.TOP;
     private long mLastTouchTime = -1;
     private boolean mFullScreen = false;
     private int mLeftMargin;

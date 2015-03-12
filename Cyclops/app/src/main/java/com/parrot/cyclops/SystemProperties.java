@@ -1,4 +1,4 @@
-package mobi.andron.cyclops;
+package com.parrot.cyclops;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

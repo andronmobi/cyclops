@@ -1,7 +1,8 @@
-package mobi.andron.cyclops;
+package com.parrot.cyclops;
 
-import mobi.andron.cyclops.Cyclops.PreviewOrientation;
-import mobi.andron.cyclops.util.SystemUiHider;
+import com.parrot.cyclops.R;
+
+import com.parrot.cyclops.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

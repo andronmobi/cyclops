@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="mobi.andron.cyclops" >
+    package="com.parrot.cyclops" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".CyclopsActivity"
+            android:name="com.parrot.cyclops.CyclopsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme"
@@ -23,8 +23,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity"/>
-        <service android:name=".CyclopsService"/>
+        <activity android:name="com.parrot.cyclops.SettingsActivity"/>
+        <service android:name="com.parrot.cyclops.CyclopsService"/>
 
     </application>
 
