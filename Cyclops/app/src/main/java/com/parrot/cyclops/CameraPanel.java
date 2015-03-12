@@ -1,6 +1,21 @@
-package com.parrot.cyclops;
+/**
+ * Copyright (C) 2013-2015 Parrot
+ *
+ * authors: Andrei Mandychev <andrei.mandychev@parrot.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
 
-import com.parrot.cyclops.R;
+package com.parrot.cyclops;
 
 import android.util.Log;
 import android.view.View;
