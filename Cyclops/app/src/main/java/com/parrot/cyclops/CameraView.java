@@ -58,6 +58,7 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
     private OnCameraStateListener mCameraStateListener = null;
 
     private Method mSetTitleMethod = null;
+    private boolean mIsClosingNeeded = false;
     private boolean mExtDisplay = false;
 
     private boolean mIsCameraMirrored = false;
@@ -117,8 +118,9 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
         return mCameraCtrl.getCameraDisplayId();
     }
 
-    public void start() {
+    public void start(boolean isClosingNeeded) {
         logdebug("start");
+        mIsClosingNeeded = isClosingNeeded;
         // Bind to CyclopsService
         Intent intent = new Intent(mContext, CyclopsService.class);
         mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -173,23 +175,31 @@ public class CameraView extends SurfaceView implements CameraCtrl.SyncCallback {
                 return;
             }
             mCameraCtrl = mCyclopsService.obtainCameraCntrl(mCameraId);
-            mCameraCtrl.setSyncCallback(CameraView.this);
+
             if (mCameraCtrl.isCameraOpened()) {
-                logdebug("Camera is already opened, resume from background");
-            } else {
-                boolean opened = mCameraCtrl.openCamera(holder, mIsCameraMirrored, mIsCameraRotatedBy180);
-                if (mCameraStateListener != null) {
-                    mCameraStateListener.onOpen(opened);
+                if (mIsClosingNeeded) {
+                    // close camera since it has a SurfaceHolder referencing to the previous CameraView
+                    logdebug("Close camera since it has an old SurfaceHolder");
+                    mCameraCtrl.closeCamera();
+                    mIsClosingNeeded = false;
+                } else {
+                    logdebug("Camera is already opened, resume from background");
+                    return;
                 }
-                if (opened) {
-                    int displayId = getCameraDisplay();
-                    mExtDisplay = (displayId == Cyclops.DISPLAY_TYPE_HDMI_TV) ? true : false;
-                    // Set a title for SurfaceView if the camera was started on TV
-                    // from the beginning and don't have updated value
-                    setVoutVideoView(mExtDisplay);
-                    if (mCameraStateListener != null) {
-                        mCameraStateListener.onUpdateDisplay(displayId);
-                    }
+            }
+            mCameraCtrl.setSyncCallback(CameraView.this);
+            boolean opened = mCameraCtrl.openCamera(holder, mIsCameraMirrored, mIsCameraRotatedBy180);
+            if (mCameraStateListener != null) {
+                mCameraStateListener.onOpen(opened);
+            }
+            if (opened) {
+                int displayId = getCameraDisplay();
+                mExtDisplay = (displayId == Cyclops.DISPLAY_TYPE_HDMI_TV) ? true : false;
+                // Set a title for SurfaceView if the camera was started on TV
+                // from the beginning and don't have updated value
+                setVoutVideoView(mExtDisplay);
+                if (mCameraStateListener != null) {
+                    mCameraStateListener.onUpdateDisplay(displayId);
                 }
             }
         }

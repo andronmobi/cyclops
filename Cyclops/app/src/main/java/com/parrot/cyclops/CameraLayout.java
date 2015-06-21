@@ -161,9 +161,7 @@ public class CameraLayout extends RelativeLayout implements CameraView.OnCameraS
         return mCameraView.getCameraDisplay();
     }
 
-    public void start() {
-        mCameraView.start();
-    }
+    public void start(boolean isClosingNeeded) { mCameraView.start(isClosingNeeded); }
 
     public void stop(boolean force) {
         mCameraView.stop(force);

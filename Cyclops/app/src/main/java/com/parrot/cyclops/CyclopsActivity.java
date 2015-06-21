@@ -77,12 +77,15 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        boolean busy = SystemProperties.isOverlay0OnTV();
-        SystemProperties.setTvBusyByOtherApp(busy);
-
+        mCurrentCameraId = -1;
         mIsRestarted = false;
         mLaunchedByGearStick = isLaunchedByGearStick(getIntent());
-        if (DEBUG) Log.d(TAG, "onCreate by GearStick=" + mLaunchedByGearStick);
+        if (DEBUG) Log.d(TAG, "onCreate by GearStick=" + mLaunchedByGearStick + ", obj=" + this);
+
+        if (!SystemProperties.isTvBusyByCyclops()) {
+            boolean busy = SystemProperties.isOverlay0OnTV();
+            SystemProperties.setTvBusyByOtherApp(busy);
+        }
 
         setContentView(R.layout.activity_cyclops);
         initSystemUiHider();
@@ -203,7 +206,7 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
         int camId = mCurrentCameraId;
         checkSharedPrefs();
         if (camId != mCurrentCameraId) {
-            if (camOnTv) {
+            if (camOnTv && mIsRestarted) {
                 // Don't use two overlays with two cameras (it's more difficult to handle properly)
                 Toast toast = Toast.makeText(this, R.string.toast_apply_display, Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);
@@ -217,7 +220,7 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
         // Update mirroring and rotation if they had been changed in SettingsActivity
         mCameraLayout.setCameraMirroring(mIsCameraMirrored);
         mCameraLayout.setCameraRotationBy180(mIsCameraRotatedBy180);
-        mCameraLayout.start();
+        mCameraLayout.start(camOnTv && !mIsRestarted);
     }
 
     @Override
@@ -254,15 +257,23 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
     protected void onStop() {
         super.onStop();
         if (DEBUG) Log.d(TAG, "onStop");
+        boolean force = isFinishing();
+        // If the activity was started from scratch (onCreate) by rear gear when
+        // camera preview was on TV, we have to keep it in background
+        // if the camera preview is still on TV.
+        if (mLaunchedByGearStick && !mIsRestarted && SystemProperties.isTvBusyByCyclops()) {
+            Log.i(TAG, "Keep camera preview on TV");
+            force = false;
+        }
         mIsStarted = false;
         SystemProperties.setTvBusyByCyclops(false); // Value will by updated by CameraView if it's on TV
         unregisterReceiver(mReceiver);
-        boolean force = isFinishing();
         mCameraLayout.stop(force);
     }
 
     @Override
     protected void onDestroy () {
+        if (DEBUG) Log.d(TAG, "onDestroy, obj=" + this);
         super.onDestroy();
         //stopService(new Intent(this, CyclopsService.class));
     }
@@ -422,4 +433,16 @@ public class CyclopsActivity extends Activity implements CameraPanel.Listener {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try{
+            if (DEBUG) Log.d(TAG, "finalize, obj=" + this);
+        }catch(Throwable t){
+            throw t;
+        }finally{
+            super.finalize();
+        }
+    }
+
 }
